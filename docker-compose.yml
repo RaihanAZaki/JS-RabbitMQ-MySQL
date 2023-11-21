@@ -1,0 +1,50 @@
+version: '4'
+
+services:
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: rehan
+
+  db:
+    image: mysql:5.7
+    container_name: dbatms
+    restart: always
+    tty: true
+    ports:
+      - "20222:3306"
+    volumes:
+      - lbdata:/var/lib/mysql
+    environment:
+      MYSQL_PASSWORD: rehan
+      MYSQL_ROOT_PASSWORD: rehan
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    networks:
+      - atms
+  
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpatms
+    links: 
+      - db
+    restart: always
+    ports:
+      - 7000:80
+    networks:
+      - atms
+
+# NETWORK
+networks:
+  atms:
+    driver: bridge
+
+# VOLUME
+volumes:
+  lbdata:
+    driver: local
